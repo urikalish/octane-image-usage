@@ -1,0 +1,13 @@
+{
+  "name": "octane-image-usage",
+  "version": "1.0.0",
+  "description": "Octane Image Usage",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/urikalish/octane-image-usage.git"
+  },
+  "author": "Uri Kalish",
+  "license": "MIT",
+  "homepage": "https://github.com/urikalish/octane-image-usage#readme"
+}
