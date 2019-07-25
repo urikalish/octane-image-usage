@@ -9,5 +9,8 @@
   },
   "author": "Uri Kalish",
   "license": "MIT",
-  "homepage": "https://github.com/urikalish/octane-image-usage#readme"
+  "homepage": "https://github.com/urikalish/octane-image-usage#readme",
+  "dependencies": {
+    "lodash": "^4.17.15"
+  }
 }

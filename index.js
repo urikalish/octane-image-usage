@@ -1,4 +1,5 @@
 'use strict';
+const _ = require('lodash');
 const fs = require('fs');
 
 const basePath = `C:/QC/Views/Git/mqm/UI/mqm-web-ui/`;
@@ -30,59 +31,44 @@ const getImageNames = (dir) => {
 	return imageNames;
 };
 
-const checkImageUsage = (imageName, relevantFiles) => {
+const checkImageUsage = (imageName, fileName, fileText) => {
 	let found = false;
-	for (let i = 0; i < relevantFiles.length; i++) {
-		const fileName = relevantFiles[i];
-		const data = fs.readFileSync(fileName).toString();
-		if (fileName.endsWith('.html')) {
-			found = data.match(new RegExp(`(name|icon)="${imageName}"`, 'gm'));
-		} else if (fileName.endsWith('.less') || fileName.endsWith('.css')) {
-			found = data.match(new RegExp(`${imageName}.svg`, 'gm'));
-		} else if (fileName.endsWith('.js') || fileName.endsWith('.ts')) {
-			found = data.match(new RegExp(`'${imageName}'`, 'gm'));
-		}
-		if (found) {
-			console.log(`+ ${imageName} (${fileName})`);
-			break;
-		}
+	if (fileName.endsWith('.html')) {
+		found = fileText.match(new RegExp(`(name|icon)="${imageName}"`, 'gm'));
+	} else if (fileName.endsWith('.less') || fileName.endsWith('.css')) {
+		found = fileText.match(new RegExp(`${imageName}.svg`, 'gm'));
+	} else if (fileName.endsWith('.js') || fileName.endsWith('.ts')) {
+		found = fileText.match(new RegExp(`'${imageName}'`, 'gm'));
 	}
-	if (!found) {
-		console.error(`- ${imageName}`);
-	}
+	return found;
 };
 
-// var replaceText = function(fullFileName) {
-// 	var result = '';
-// 	fs.readFile(fullFileName, 'utf8', function (err, data) {
-// 		if (err) {
-// 			return console.log(err);
-// 		}
-// 		if (data.match(/( !important;)/gm)) {
-// 			count++;
-// 			console.log(
-// 			'\n----------------------------------------------------------------------------------------------------\n' +
-// 			'(' + count + ' )' + fullFileName +
-// 			'\n----------------------------------------------------------------------------------------------------\n');
-//
-// 			result = data.replace(/^([ \t]+)([a-zA-Z0-9:.\-%@#~"(){} \t]+)( !important;)$/gm, '$1' + prevLine + '\n$1$2$3\n' + '$1' + nextLine);
-//
-// 			console.log(result);
-//
-// 			fs.writeFile(fullFileName, result, 'utf8', function (err) {
-// 				if (err) {
-// 					return console.log(err);
-// 				}
-// 			});
-//
-// 		}
-// 	});
-// };
+const checkUsage = (relevantFiles, imageNames) => {
+	const result = {};
+	imageNames.forEach(imageName => {
+		result[imageName] = [];
+	});
+	relevantFiles.forEach(fileName => {
+		const data = fs.readFileSync(fileName).toString();
+		imageNames.forEach(imageName => {
+			if (checkImageUsage(imageName, fileName, data)) {
+				result[imageName].push(fileName);
+			}
+		});
+	});
+	return result;
+};
 
-const imageNames = getImageNames(imagesPath);
 const relevantFiles = getFiles(searchPath, []);
-console.log(`${imageNames.length} image names`);
 console.log(`${relevantFiles.length} relevant files`);
-imageNames.forEach(imageName => {
- 	checkImageUsage(imageName, relevantFiles);
+const imageNames = getImageNames(imagesPath);
+console.log(`${imageNames.length} image names`);
+let result = checkUsage(relevantFiles, imageNames);
+let output = [];
+_.keys(result).forEach(k => {
+	output.push(`${result[k].length < 10 ? '0' : ''}${result[k].length} ${k}`);
+});
+output.sort();
+output.forEach(o => {
+	console.log(o);
 });
