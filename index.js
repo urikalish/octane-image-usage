@@ -11,7 +11,7 @@ const getFiles = (dir, files) => {
 		const fullName = dir + file;
 		if (fs.statSync(fullName).isDirectory()) {
 			if (!fullName.endsWith('/lib') && !fullName.endsWith('/generated')) {
-				files = getFiles(fullName + '/', files);
+			files = getFiles(fullName + '/', files);
 			}
 		} else if (file.endsWith('.html') || file.endsWith('.less') || file.endsWith('.css') || file.endsWith('.js') || file.endsWith('.ts')) {
 			//console.log(fullName);
@@ -59,16 +59,28 @@ const checkUsage = (relevantFiles, imageNames) => {
 	return result;
 };
 
-const relevantFiles = getFiles(searchPath, []);
-console.log(`${relevantFiles.length} relevant files`);
-const imageNames = getImageNames(imagesPath);
-console.log(`${imageNames.length} image names`);
-let result = checkUsage(relevantFiles, imageNames);
-let output = [];
-_.keys(result).forEach(k => {
-	output.push(`${result[k].length < 10 ? '0' : ''}${result[k].length} ${k}`);
-});
-output.sort();
-output.forEach(o => {
-	console.log(o);
-});
+const generateUsageReport = () => {
+	const relevantFiles = getFiles(searchPath, []);
+	console.log(`${relevantFiles.length} relevant files`);
+	const imageNames = getImageNames(imagesPath);
+	console.log(`${imageNames.length} image names`);
+	let result = checkUsage(relevantFiles, imageNames);
+	let output = [];
+	_.keys(result).forEach(k => {
+		output.push(`${result[k].length < 10 ? '0' : ''}${result[k].length} ${k}`);
+	});
+	output.sort();
+	output.forEach(o => {
+		console.log(o);
+	});
+};
+
+const generateSvgImports = () => {
+	const dir = basePath + 'app/ui/platform/assets/images/icons/';
+	fs.readdirSync(dir).forEach(file => {
+		console.log(`import 'platform/assets/images/icons/${file}';`);
+	});
+};
+
+generateUsageReport();
+//generateSvgImports();
