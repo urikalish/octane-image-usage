@@ -3,7 +3,7 @@ const _ = require('lodash');
 const fs = require('fs');
 
 const basePath = `C:/QC/Views/Git/mqm/UI/mqm-web-ui/`;
-const searchPath = basePath + 'app/ui/';
+const searchPath = basePath + 'app/';
 const imagesPath = basePath + 'target/stylebox/build/assets/icons/';
 
 const getFiles = (dir, files) => {
@@ -11,7 +11,7 @@ const getFiles = (dir, files) => {
 		const fullName = dir + file;
 		if (fs.statSync(fullName).isDirectory()) {
 			if (!fullName.endsWith('/lib') && !fullName.endsWith('/generated')) {
-			files = getFiles(fullName + '/', files);
+				files = getFiles(fullName + '/', files);
 			}
 		} else if (file.endsWith('.html') || file.endsWith('.less') || file.endsWith('.css') || file.endsWith('.js') || file.endsWith('.ts')) {
 			//console.log(fullName);
@@ -33,12 +33,14 @@ const getImageNames = (dir) => {
 
 const checkImageUsage = (imageName, fileName, fileText) => {
 	let found = false;
-	if (fileName.endsWith('.html')) {
+	if (fileText.match(new RegExp(`${imageName}.svg`, 'gm'))) {
+		found = true;
+	} else if (fileName.endsWith('.html')) {
 		found = fileText.match(new RegExp(`(name|icon)="${imageName}"`, 'gm'));
 	} else if (fileName.endsWith('.less') || fileName.endsWith('.css')) {
 		found = fileText.match(new RegExp(`${imageName}.svg`, 'gm'));
 	} else if (fileName.endsWith('.js') || fileName.endsWith('.ts')) {
-		found = fileText.match(new RegExp(`'${imageName}'`, 'gm'));
+		found = fileText.match(new RegExp(`'${imageName}'|"${imageName}"`, 'gm'));
 	}
 	return found;
 };
